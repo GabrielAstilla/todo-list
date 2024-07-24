@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
+interface Todo {
+  id: number;
+  task: string;
+  isComplete: boolean;
+}
+
 export default function Index() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState("");
-  const [editTodo, setEditTodo] = useState(null);
+  const [editTodo, setEditTodo] = useState<number | null>(null);
   const apiUrl = "https://localhost:7219/api/todos";
 
   useEffect(() => {
@@ -30,7 +36,7 @@ export default function Index() {
     }
   };
 
-  const updateTodo = (id, updatedTask) => {
+  const updateTodo = (id: number, updatedTask: string) => {
     axios.put(`${apiUrl}/${id}`, { task: updatedTask, isComplete: false })
       .then(() => {
         setTodos(todos.map(todo => todo.id === id ? { ...todo, task: updatedTask } : todo));
@@ -41,18 +47,20 @@ export default function Index() {
       });
   };
 
-  const toggleComplete = (id, isComplete) => {
+  const toggleComplete = (id: number, isComplete: boolean) => {
     const todoToUpdate = todos.find(todo => todo.id === id);
-    axios.put(`${apiUrl}/${id}`, { ...todoToUpdate, isComplete: !isComplete })
-      .then(() => {
-        setTodos(todos.map(todo => todo.id === id ? { ...todo, isComplete: !isComplete } : todo));
-      })
-      .catch(error => {
-        console.error("There was an error toggling the todo!", error);
-      });
+    if (todoToUpdate) {
+      axios.put(`${apiUrl}/${id}`, { ...todoToUpdate, isComplete: !isComplete })
+        .then(() => {
+          setTodos(todos.map(todo => todo.id === id ? { ...todo, isComplete: !isComplete } : todo));
+        })
+        .catch(error => {
+          console.error("There was an error toggling the todo!", error);
+        });
+    }
   };
 
-  const removeTodo = (id) => {
+  const removeTodo = (id: number) => {
     axios.delete(`${apiUrl}/${id}`)
       .then(() => {
         setTodos(todos.filter(todo => todo.id !== id));
@@ -96,7 +104,7 @@ export default function Index() {
                 />
               ) : (
                 <span
-                  className={`flex-1 cursor-pointer ${todo.isComplete ? 'line-through' : ''}`}
+                  className={`flex-1 cursor-pointer overflow-hidden ${todo.isComplete ? 'line-through' : ''}`}
                   onClick={() => toggleComplete(todo.id, todo.isComplete)}
                 >
                   {todo.task}
