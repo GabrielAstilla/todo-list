@@ -73,7 +73,7 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-4">To-Do List</h1>
+        <h1 className="text-2xl text-center font-bold mb-4">To-Do List</h1>
         <div className="flex mb-4">
           <input
             type="text"
