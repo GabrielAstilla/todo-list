@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
-// Define the Todo interface
 interface Todo {
   id: number;
   task: string;
@@ -16,7 +15,6 @@ export default function Index() {
   const [editTask, setEditTask] = useState<string>("");
   const apiUrl = "https://localhost:7219/api/todos";
 
-  // Fetch todos from the server when the component mounts
   useEffect(() => {
     axios.get(apiUrl)
       .then(response => {
@@ -27,13 +25,12 @@ export default function Index() {
       });
   }, []);
 
-  // Add a new todo
   const addTodo = () => {
     const trimmedTodo = newTodo.trim();
     if (trimmedTodo) {
       axios.post(apiUrl, { task: trimmedTodo, isComplete: false })
         .then(response => {
-          setTodos([response.data, ...todos]); // Add new todo at the top
+          setTodos([response.data, ...todos]);
           setNewTodo("");
         })
         .catch(error => {
@@ -42,13 +39,11 @@ export default function Index() {
     }
   };
 
-  // Start editing a todo
   const startEdit = (todo: Todo) => {
     setEditTodo(todo.id);
     setEditTask(todo.task);
   };
 
-  // Save the edited todo
   const saveEdit = (id: number) => {
     const trimmedEditTask = editTask.trim();
     if (trimmedEditTask && trimmedEditTask !== todos.find(todo => todo.id === id)?.task) {
@@ -63,7 +58,6 @@ export default function Index() {
     }
   };
 
-  // Toggle the completion status of a todo
   const toggleComplete = (id: number, isComplete: boolean) => {
     const todoToUpdate = todos.find(todo => todo.id === id);
     if (todoToUpdate) {
@@ -77,7 +71,6 @@ export default function Index() {
     }
   };
 
-  // Remove a todo
   const removeTodo = (id: number) => {
     axios.delete(`${apiUrl}/${id}`)
       .then(() => {
@@ -89,8 +82,8 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-400 via-blue-500 to-purple-500 flex items-center justify-center">
-      <div className="fixed top-10 left-1/2 transform -translate-x-1/2 max-w-md w-full bg-white shadow-2xl rounded-lg overflow-hidden bg-gradient-to-r from-blue-400 to-purple-500">
+    <div className="py-8 min-h-screen bg-gradient-to-r from-blue-400 via-blue-500 to-purple-500 flex items-center justify-center">
+      <div className="max-w-md w-full bg-white shadow-2xl rounded-lg overflow-hidden bg-gradient-to-r from-blue-400 to-purple-500">
         <h1 className="text-3xl font-bold text-white p-4 text-center">To-Do List</h1>
         <div className="p-4">
           <div className="flex mb-4">
@@ -113,7 +106,7 @@ export default function Index() {
             {todos.map((todo) => (
               <li
                 key={todo.id}
-                className="flex items-center bg-gray-100 p-3 mb-2 rounded-md shadow-sm hover:bg-gray-200 transition"
+                className="relative flex items-center bg-gray-100 p-3 mb-2 rounded-md shadow-sm hover:bg-gray-200 transition"
               >
                 <input
                   type="checkbox"
@@ -121,7 +114,7 @@ export default function Index() {
                   onChange={() => toggleComplete(todo.id, todo.isComplete)}
                   className="mr-3"
                 />
-                <div className="flex-1">
+                <div className="flex-1 overflow-hidden">
                   {editTodo === todo.id ? (
                     <div className="flex items-center">
                       <textarea
@@ -130,9 +123,9 @@ export default function Index() {
                         onChange={(e) => setEditTask(e.target.value)}
                       />
                       <button
-                        className="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                        className={`ml-2 px-4 py-2 rounded-md transition ${editTask.trim() === '' || editTask === todos.find(todo => todo.id === editTodo)?.task ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-green-500 text-white hover:bg-green-600'}`}
                         onClick={() => saveEdit(todo.id)}
-                        disabled={editTask.trim() === ''}
+                        disabled={editTask.trim() === '' || editTask === todos.find(todo => todo.id === editTodo)?.task}
                       >
                         Save
                       </button>
@@ -145,22 +138,23 @@ export default function Index() {
                     </div>
                   ) : (
                     <span
-                      className={`block overflow-hidden ${todo.isComplete ? 'line-through text-gray-500' : 'text-gray-800'}`}
+                      className={`block overflow-hidden pr-12 ${todo.isComplete ? 'line-through text-gray-500' : 'text-gray-800'}`}
+                      style={{ wordBreak: 'break-word' }}
                     >
                       {todo.task}
                     </span>
                   )}
                 </div>
                 {editTodo !== todo.id && (
-                  <div className="flex-shrink-0 ml-3">
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex-shrink-0 space-x-2">
                     <button
-                      className="text-blue-500 p-2 hover:text-blue-600 transition"
+                      className="text-blue-500 hover:text-blue-600 transition"
                       onClick={() => startEdit(todo)}
                     >
                       <FaEdit />
                     </button>
                     <button
-                      className="text-red-500 p-2 hover:text-red-600 transition"
+                      className="text-red-500 hover:text-red-600 transition"
                       onClick={() => removeTodo(todo.id)}
                     >
                       <FaTrash />
